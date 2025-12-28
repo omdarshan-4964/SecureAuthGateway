@@ -36,8 +36,8 @@
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/yourusername/SecureAuth-Gateway.git
-   cd SecureAuth-Gateway
+   git clone https://github.com/omdarshan-4964/SecureAuthGateway.git
+   cd SecureAuthGateway
    ```
 
 2. **Set up environment variables:**
@@ -234,17 +234,7 @@ docker-compose down && docker-compose build && docker-compose up -d
 
 ---
 
-## 📚 Documentation
-
-- **[PROJECT_FINAL_REPORT.md](./PROJECT_FINAL_REPORT.md)** - Complete project documentation
-- **[PRE_PUSH_CHECKLIST.md](./PRE_PUSH_CHECKLIST.md)** - Pre-deployment checklist
-- **[DOCKER_DEPLOYMENT.md](./DOCKER_DEPLOYMENT.md)** - Docker setup guide
-- **[API_DOCUMENTATION.md](./API_DOCUMENTATION.md)** - API reference
-- **[USER_MANAGEMENT_FEATURE.md](./USER_MANAGEMENT_FEATURE.md)** - Admin features guide
-
----
-
-## 🐛 Troubleshooting
+##  Troubleshooting
 
 ### Containers won't start
 ```bash
@@ -335,10 +325,11 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 👤 Author
 
-**Your Name**
-- GitHub: [@yourusername](https://github.com/yourusername)
-- LinkedIn: [Your Profile](https://linkedin.com/in/yourprofile)
-- Email: your.email@example.com
+**Omdarshan Shinde Patil**
+- GitHub: [@omdarshan-4964](https://github.com/omdarshan-4964)
+- LinkedIn: [Omdarshan Shinde Patil](https://www.linkedin.com/in/omdarshanshindepatil/)
+- Portfolio: [portfolio-omdarshanpatil.vercel.app](https://portfolio-omdarshanpatil.vercel.app/)
+- Email: omdarshanpatil@gmail.com
 
 ---
 
@@ -359,4 +350,4 @@ If you found this project helpful, please give it a ⭐️!
 
 ---
 
-**Last Updated:** December 29, 2024
+**Last Updated:** December 29, 2025
