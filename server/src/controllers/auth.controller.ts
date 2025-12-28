@@ -88,12 +88,20 @@ class AuthController {
       });
 
       // 5. SET REFRESH TOKEN IN HTTP-ONLY COOKIE
-      res.cookie('jwt', refreshToken, {
+      // Hybrid configuration: Supports HTTPS (Vercel/Render) and HTTP (AWS EC2 demo)
+      const cookieOptions = {
         httpOnly: true, // Prevents JavaScript access (XSS protection)
-        secure: config.NODE_ENV === 'production', // HTTPS only in production
-        sameSite: 'strict', // CSRF protection
+        secure: process.env.ALLOW_INSECURE_COOKIES === 'true' 
+          ? false 
+          : config.NODE_ENV === 'production', // Force false for AWS demo
+        sameSite: (process.env.ALLOW_INSECURE_COOKIES === 'true' 
+          ? 'lax' 
+          : config.NODE_ENV === 'production' 
+            ? 'none' 
+            : 'lax') as 'lax' | 'none' | 'strict', // 'none' required for cross-site HTTPS
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
-      });
+      };
+      res.cookie('jwt', refreshToken, cookieOptions);
 
       // 6. SEND RESPONSE (password excluded by schema toJSON transform)
       sendSuccess(
@@ -176,12 +184,20 @@ class AuthController {
       });
 
       // 6. SET REFRESH TOKEN IN HTTP-ONLY COOKIE
-      res.cookie('jwt', refreshToken, {
+      // Hybrid configuration: Supports HTTPS (Vercel/Render) and HTTP (AWS EC2 demo)
+      const cookieOptions = {
         httpOnly: true,
-        secure: config.NODE_ENV === 'production',
-        sameSite: 'strict',
+        secure: process.env.ALLOW_INSECURE_COOKIES === 'true' 
+          ? false 
+          : config.NODE_ENV === 'production',
+        sameSite: (process.env.ALLOW_INSECURE_COOKIES === 'true' 
+          ? 'lax' 
+          : config.NODE_ENV === 'production' 
+            ? 'none' 
+            : 'lax') as 'lax' | 'none' | 'strict',
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-      });
+      };
+      res.cookie('jwt', refreshToken, cookieOptions);
 
       // 7. SEND RESPONSE
       sendSuccess(res, 'Login successful', {
@@ -215,9 +231,19 @@ class AuthController {
   public static logout = asyncHandler(
     async (_req: Request, res: Response, _next: NextFunction): Promise<void> => {
       // Clear the refresh token cookie
-      res.cookie('jwt', '', {
+      const cookieOptions = {
         httpOnly: true,
-        secure: config.NODE_ENV === 'production',
+        secure: process.env.ALLOW_INSECURE_COOKIES === 'true' 
+          ? false 
+          : config.NODE_ENV === 'production',
+        sameSite: (process.env.ALLOW_INSECURE_COOKIES === 'true' 
+          ? 'lax' 
+          : config.NODE_ENV === 'production' 
+            ? 'none' 
+            : 'lax') as 'lax' | 'none' | 'strict',
+      };
+      res.cookie('jwt', '', {
+        ...cookieOptions,
         sameSite: 'strict',
         maxAge: 0, // Expire immediately
       });

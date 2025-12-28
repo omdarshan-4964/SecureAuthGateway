@@ -13,6 +13,7 @@
 
 import axios, { AxiosError, AxiosRequestConfig, InternalAxiosRequestConfig } from 'axios';
 
+// API URL with fallback for hybrid deployment (production/AWS demo/localhost)
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
 
 // Token storage (in-memory, not localStorage to prevent XSS)

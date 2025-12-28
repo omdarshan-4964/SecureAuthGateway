@@ -54,10 +54,10 @@ class Server {
     // Security Headers (Helmet)
     this.app.use(helmet());
 
-    // CORS Configuration (Whitelist specific origins)
+    // CORS Configuration (Whitelist specific origins with fallback)
     this.app.use(
       cors({
-        origin: config.FRONTEND_URL,
+        origin: process.env.FRONTEND_URL || 'http://localhost:3000',
         credentials: true, // Allow cookies to be sent
         methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
         allowedHeaders: ['Content-Type', 'Authorization'],
