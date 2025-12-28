@@ -1,0 +1,135 @@
+# ===========================
+# SecureAuth Gateway - .gitignore
+# ===========================
+
+# ===========================
+# Dependencies
+# ===========================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ===========================
+# Environment Variables (CRITICAL)
+# ===========================
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env*.local
+.env.docker
+
+# ===========================
+# Build Outputs
+# ===========================
+dist/
+build/
+.next/
+out/
+*.tsbuildinfo
+
+# ===========================
+# Logs
+# ===========================
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ===========================
+# Docker
+# ===========================
+data/
+.docker/
+*.dockerignore
+docker-compose.override.yml
+
+# ===========================
+# IDE / Editor
+# ===========================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+*.sublime-project
+*.sublime-workspace
+
+# ===========================
+# OS Files
+# ===========================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# ===========================
+# Testing
+# ===========================
+coverage/
+.nyc_output/
+*.lcov
+.jest-cache/
+
+# ===========================
+# Temporary Files
+# ===========================
+*.tmp
+*.temp
+.cache/
+.parcel-cache/
+.turbo/
+
+# ===========================
+# Package Manager
+# ===========================
+.pnp
+.pnp.js
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# ===========================
+# Vercel
+# ===========================
+.vercel
+
+# ===========================
+# TypeScript
+# ===========================
+*.tsbuildinfo
+next-env.d.ts
+
+# ===========================
+# ESLint
+# ===========================
+.eslintcache
+
+# ===========================
+# Documentation (Personal Use)
+# ===========================
+# Exclude all .md files except README.md
+*.md
+!README.md
+
+# ===========================
+# Keep These Files
+# ===========================
+!.gitkeep
+!.env.example
+

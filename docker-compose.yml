@@ -1,0 +1,85 @@
+# SecureAuth Gateway - Docker Compose Configuration
+# Production-ready orchestration for MERN stack application
+
+services:
+  # MongoDB Database (Local - Optional)
+  # Comment out this entire section if using MongoDB Atlas
+  mongo:
+    image: mongo:latest
+    container_name: secureauth-mongo
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_DATABASE: secureauth-gateway
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: securepass123
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongo-data:/data/db
+      - ./data/configdb:/data/configdb
+    networks:
+      - secureauth-network
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # Express Backend Server
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: secureauth-server
+    restart: unless-stopped
+    env_file:
+      - .env.docker
+    ports:
+      - '5000:5000'
+    depends_on:
+      mongo:
+        condition: service_healthy
+    networks:
+      - secureauth-network
+    volumes:
+      - ./server/logs:/app/logs
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+
+  # Next.js Frontend Client
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: secureauth-client
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      NEXT_PUBLIC_API_URL: http://localhost:5000/api/v1
+    ports:
+      - '3000:3000'
+    depends_on:
+      server:
+        condition: service_healthy
+    networks:
+      - secureauth-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+networks:
+  secureauth-network:
+    driver: bridge
+    name: secureauth-network
+
+volumes:
+  mongo-data:
+    driver: local
