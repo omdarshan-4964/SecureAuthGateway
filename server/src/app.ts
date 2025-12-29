@@ -55,11 +55,24 @@ class Server {
     this.app.use(helmet());
 
     // CORS Configuration (Whitelist specific origins with fallback)
+    const allowedOrigins = [
+      process.env.FRONTEND_URL || 'http://localhost:3000',
+      'https://secureauth-gateway.vercel.app',
+      'http://localhost:3000',
+      'http://localhost:3001',
+    ];
+
     this.app.use(
       cors({
-        origin: process.env.FRONTEND_URL || 'http://localhost:3000' || 'https://secureauth-gateway.vercel.app',
+        origin: (origin, callback) => {
+          if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+          } else {
+            callback(new Error('Not allowed by CORS'));
+          }
+        },
         credentials: true, // Allow cookies to be sent
-        methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+        methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
         allowedHeaders: ['Content-Type', 'Authorization'],
       })
     );
