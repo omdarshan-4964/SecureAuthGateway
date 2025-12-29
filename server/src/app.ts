@@ -57,7 +57,7 @@ class Server {
     // CORS Configuration (Whitelist specific origins with fallback)
     this.app.use(
       cors({
-        origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+        origin: process.env.FRONTEND_URL || 'http://localhost:3000' || 'https://secureauth-gateway.vercel.app',
         credentials: true, // Allow cookies to be sent
         methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
         allowedHeaders: ['Content-Type', 'Authorization'],
