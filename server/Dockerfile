@@ -6,14 +6,14 @@ FROM node:20-alpine
 # Set working directory
 WORKDIR /app
 
-# Copy package files
-COPY server/package*.json ./
+# Copy package files (including lock file for npm ci)
+COPY server/package.json server/package-lock.json ./
 
 # Install ALL dependencies first (including tsconfig-paths for runtime)
 RUN npm ci && npm cache clean --force
 
-# Copy TypeScript configuration
-COPY server/tsconfig.json ./
+# Copy configuration files
+COPY server/tsconfig.json server/nodemon.json server/bootstrap.js ./
 
 # Copy source code
 COPY server/src ./src
