@@ -7,16 +7,16 @@ FROM node:20-alpine
 WORKDIR /app
 
 # Copy package files
-COPY package*.json ./
+COPY server/package*.json ./
 
 # Install ALL dependencies first (including tsconfig-paths for runtime)
 RUN npm ci && npm cache clean --force
 
 # Copy TypeScript configuration
-COPY tsconfig.json ./
+COPY server/tsconfig.json ./
 
 # Copy source code
-COPY src ./src
+COPY server/src ./src
 
 # Build TypeScript to JavaScript and resolve path aliases
 RUN npm run build
