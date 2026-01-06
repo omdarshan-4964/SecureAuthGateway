@@ -7,7 +7,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Home, 
   CreditCard, 
@@ -27,6 +27,7 @@ import { Separator } from '@/components/ui/separator';
 import { useAuth } from '@/lib/auth-context';
 import { useLogout } from '@/lib/auth-hooks';
 import { toast } from 'sonner';
+import { slideInLeft, slidingPill, scaleOnHover } from '@/lib/animations';
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: Home },
@@ -64,9 +65,10 @@ export function Sidebar({ collapsed = false, onToggleCollapse }: SidebarProps) {
 
   return (
     <motion.aside
-      initial={{ x: -20, opacity: 0 }}
-      animate={{ x: 0, opacity: 1 }}
-      className={`fixed left-0 top-0 h-screen backdrop-blur-xl bg-slate-950/50 border-r border-slate-800 flex flex-col transition-all duration-300 ${
+      variants={slideInLeft}
+      initial="hidden"
+      animate="visible"
+      className={`fixed left-0 top-0 h-screen backdrop-blur-xl bg-slate-950/50 border-r border-slate-800 flex flex-col transition-all duration-300 z-50 ${
         collapsed ? 'w-20' : 'w-64'
       }`}
     >
@@ -112,20 +114,34 @@ export function Sidebar({ collapsed = false, onToggleCollapse }: SidebarProps) {
           return (
             <Link key={item.name} href={item.href}>
               <motion.div
-                whileHover={{ x: 4 }}
+                whileHover={scaleOnHover}
                 whileTap={{ scale: 0.98 }}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all ${
+                className={`relative flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all ${
                   isActive
-                    ? 'bg-primary/10 text-primary border border-primary/20'
+                    ? 'text-violet-400'
                     : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
                 }`}
               >
-                <Icon className="h-5 w-5 flex-shrink-0" />
+                {/* Sliding Glowing Pill Background */}
+                <AnimatePresence>
+                  {isActive && (
+                    <motion.div
+                      layoutId="activePill"
+                      variants={slidingPill}
+                      initial="hidden"
+                      animate="visible"
+                      exit="hidden"
+                      className="absolute inset-0 bg-gradient-to-r from-violet-500/20 to-purple-500/20 border border-violet-500/30 rounded-lg backdrop-blur-sm"
+                      style={{
+                        boxShadow: '0 0 20px rgba(139, 92, 246, 0.3), inset 0 0 20px rgba(139, 92, 246, 0.1)',
+                      }}
+                    />
+                  )}
+                </AnimatePresence>
+                
+                <Icon className="h-5 w-5 flex-shrink-0 relative z-10" />
                 {!collapsed && (
-                  <span className="font-medium text-sm">{item.name}</span>
-                )}
-                {isActive && !collapsed && (
-                  <div className="ml-auto h-2 w-2 rounded-full bg-primary animate-pulse" />
+                  <span className="font-medium text-sm relative z-10">{item.name}</span>
                 )}
               </motion.div>
             </Link>
