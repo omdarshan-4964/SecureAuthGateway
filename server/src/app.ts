@@ -34,6 +34,8 @@ class Server {
 
   constructor() {
     this.app = express();
+    // Trust the reverse proxy (Render/Vercel) so req.secure is true
+    this.app.set('trust proxy', 1);
     this.port = config.PORT;
     this.initializeMiddlewares();
     this.initializeRoutes();
