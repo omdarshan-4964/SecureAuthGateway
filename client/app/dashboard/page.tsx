@@ -5,7 +5,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Shield,
@@ -20,24 +20,42 @@ import {
 } from 'lucide-react';
 import axios from 'axios';
 import { useAuth } from '@/lib/auth-context';
+import { staggerContainer, fadeInUp, scaleOnHover } from '@/lib/animations';
 
-// Animation variants
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { staggerChildren: 0.15 },
-  },
-};
+// Hook for counting up numbers
+function useCountUp(end: number, duration: number = 2000, start: number = 0) {
+  const [count, setCount] = useState(start);
 
-const itemVariants = {
-  hidden: { opacity: 0, y: 30 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { type: 'spring' as const, stiffness: 100, damping: 15 },
-  },
-};
+  useEffect(() => {
+    let startTime: number;
+    let animationFrame: number;
+
+    const animate = (currentTime: number) => {
+      if (!startTime) startTime = currentTime;
+      const progress = Math.min((currentTime - startTime) / duration, 1);
+      
+      // Easing function for smooth animation
+      const easeOutQuart = 1 - Math.pow(1 - progress, 4);
+      const current = Math.floor(start + (end - start) * easeOutQuart);
+      
+      setCount(current);
+
+      if (progress < 1) {
+        animationFrame = requestAnimationFrame(animate);
+      }
+    };
+
+    animationFrame = requestAnimationFrame(animate);
+
+    return () => {
+      if (animationFrame) {
+        cancelAnimationFrame(animationFrame);
+      }
+    };
+  }, [end, duration, start]);
+
+  return count;
+}
 
 export default function DashboardPage() {
   const { user } = useAuth();
@@ -47,6 +65,11 @@ export default function DashboardPage() {
     'idle' | 'success' | 'denied' | 'error'
   >('idle');
   const [errorMessage, setErrorMessage] = useState('');
+  
+  // Animated counters
+  const balance = useCountUp(5000, 2000);
+  const transactions = useCountUp(127, 1500);
+  const successRate = useCountUp(99, 1800);
 
   // Get role color
   const getRoleColor = (role: string) => {
@@ -164,13 +187,13 @@ export default function DashboardPage() {
 
       {/* Dashboard Grid */}
       <motion.div
-        variants={containerVariants}
+        variants={staggerContainer}
         initial="hidden"
         animate="visible"
         className="grid grid-cols-1 lg:grid-cols-3 gap-6"
       >
         {/* SECTION A: User Profile Card */}
-        <motion.div variants={itemVariants} className="lg:col-span-1">
+        <motion.div variants={fadeInUp} className="lg:col-span-1" whileHover={scaleOnHover}>
           <div className="relative bg-slate-900/50 backdrop-blur-md border border-white/10 rounded-2xl p-6 overflow-hidden">
             {/* Gradient overlay */}
             <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-violet-500/20 to-transparent rounded-full blur-2xl" />
@@ -236,8 +259,8 @@ export default function DashboardPage() {
         </motion.div>
 
         {/* SECTION B: Merchant Terminal (RBAC Test) */}
-        <motion.div variants={itemVariants} className="lg:col-span-2">
-          <div className="relative bg-slate-900/50 backdrop-blur-md border border-white/10 rounded-2xl p-6 overflow-hidden">
+        <motion.div variants={fadeInUp} className="lg:col-span-2" whileHover={scaleOnHover}>
+          <div className="relative bg-slate-900/50 backdrop-blur-md border border-white/10 rounded-2xl p-6 overflow-hidden hover:border-amber-500/30 transition-all duration-300">
             {/* Background gradient */}
             <div className="absolute top-0 left-0 w-64 h-64 bg-gradient-to-br from-amber-500/10 to-transparent rounded-full blur-3xl" />
 
@@ -418,47 +441,80 @@ export default function DashboardPage() {
 
         {/* Quick Stats Row */}
         <motion.div
-          variants={itemVariants}
+          variants={staggerContainer}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
           className="lg:col-span-3 grid grid-cols-1 md:grid-cols-3 gap-4"
         >
           {/* Stat 1 */}
-          <div className="bg-slate-900/50 backdrop-blur-md border border-white/10 rounded-xl p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-slate-400 text-sm">Session Status</p>
-                <p className="text-white text-xl font-bold mt-1">Active</p>
-              </div>
-              <div className="h-12 w-12 rounded-lg bg-emerald-500/20 flex items-center justify-center">
-                <Activity className="h-6 w-6 text-emerald-400" />
+          <motion.div variants={fadeInUp} whileHover={scaleOnHover}>
+            <div className="bg-slate-900/50 backdrop-blur-md border border-white/10 rounded-xl p-4 hover:border-emerald-500/30 transition-all duration-300">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-slate-400 text-sm">Balance</p>
+                  <motion.p
+                    key={balance}
+                    initial={{ opacity: 0, scale: 0.5 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ type: 'spring', stiffness: 200, damping: 15 }}
+                    className="text-white text-xl font-bold mt-1"
+                  >
+                    ${balance.toLocaleString()}
+                  </motion.p>
+                </div>
+                <div className="h-12 w-12 rounded-lg bg-emerald-500/20 flex items-center justify-center">
+                  <DollarSign className="h-6 w-6 text-emerald-400" />
+                </div>
               </div>
             </div>
-          </div>
+          </motion.div>
 
           {/* Stat 2 */}
-          <div className="bg-slate-900/50 backdrop-blur-md border border-white/10 rounded-xl p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-slate-400 text-sm">Authentication</p>
-                <p className="text-white text-xl font-bold mt-1">JWT Active</p>
-              </div>
-              <div className="h-12 w-12 rounded-lg bg-violet-500/20 flex items-center justify-center">
-                <Shield className="h-6 w-6 text-violet-400" />
+          <motion.div variants={fadeInUp} whileHover={scaleOnHover}>
+            <div className="bg-slate-900/50 backdrop-blur-md border border-white/10 rounded-xl p-4 hover:border-violet-500/30 transition-all duration-300">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-slate-400 text-sm">Transactions</p>
+                  <motion.p
+                    key={transactions}
+                    initial={{ opacity: 0, scale: 0.5 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ type: 'spring', stiffness: 200, damping: 15 }}
+                    className="text-white text-xl font-bold mt-1"
+                  >
+                    {transactions}
+                  </motion.p>
+                </div>
+                <div className="h-12 w-12 rounded-lg bg-violet-500/20 flex items-center justify-center">
+                  <Activity className="h-6 w-6 text-violet-400" />
+                </div>
               </div>
             </div>
-          </div>
+          </motion.div>
 
           {/* Stat 3 */}
-          <div className="bg-slate-900/50 backdrop-blur-md border border-white/10 rounded-xl p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-slate-400 text-sm">Access Level</p>
-                <p className="text-white text-xl font-bold mt-1">{user.role}</p>
-              </div>
-              <div className="h-12 w-12 rounded-lg bg-amber-500/20 flex items-center justify-center">
-                <User className="h-6 w-6 text-amber-400" />
+          <motion.div variants={fadeInUp} whileHover={scaleOnHover}>
+            <div className="bg-slate-900/50 backdrop-blur-md border border-white/10 rounded-xl p-4 hover:border-amber-500/30 transition-all duration-300">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-slate-400 text-sm">Success Rate</p>
+                  <motion.p
+                    key={successRate}
+                    initial={{ opacity: 0, scale: 0.5 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ type: 'spring', stiffness: 200, damping: 15 }}
+                    className="text-white text-xl font-bold mt-1"
+                  >
+                    {successRate}%
+                  </motion.p>
+                </div>
+                <div className="h-12 w-12 rounded-lg bg-amber-500/20 flex items-center justify-center">
+                  <CheckCircle2 className="h-6 w-6 text-amber-400" />
+                </div>
               </div>
             </div>
-          </div>
+          </motion.div>
         </motion.div>
       </motion.div>
 

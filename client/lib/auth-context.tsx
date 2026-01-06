@@ -6,7 +6,7 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState } from 'react';
-import apiClient from './axios';
+import axiosInstance from './axios';
 
 interface AuthUser {
   id: string;
@@ -29,7 +29,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const refreshUser = async () => {
     try {
-      const accessToken = localStorage.getItem('accessToken');
+      // Check for token in both localStorage and sessionStorage (axios uses sessionStorage)
+      const accessToken = 
+        (typeof window !== 'undefined' && sessionStorage.getItem('accessToken')) ||
+        (typeof window !== 'undefined' && localStorage.getItem('accessToken')) ||
+        null;
+      
+      // If no token exists, don't make the API call
       if (!accessToken) {
         setUser(null);
         setLoading(false);
@@ -37,7 +43,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       // Make sure axios has the token
-      const response = await apiClient.get('/auth/me');
+      const response = await axiosInstance.get('/auth/me');
+      
+      // Handle response structure safely
+      if (!response?.data?.data?.user) {
+        throw new Error('Invalid response structure');
+      }
       
       const userData = response.data.data.user;
       
@@ -48,10 +59,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         email: userData.email,
         role: (userData.role?.toUpperCase() || 'USER') as 'USER' | 'MERCHANT' | 'ADMIN',
       });
-    } catch (error) {
-      console.error('Failed to fetch user:', error);
+    } catch (error: any) {
+      // Clear user state
       setUser(null);
-      localStorage.removeItem('accessToken');
+      
+      // Silently handle auth errors (401/403)
+      const isAuthError = error?.response?.status === 401 || error?.response?.status === 403;
+      
+      if (isAuthError) {
+        // Expected when user is not authenticated - clean up silently
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('accessToken');
+          sessionStorage.removeItem('accessToken');
+        }
+      } else if (process.env.NODE_ENV === 'development' && error?.message) {
+        // Only log actual errors in development (not network/connection issues)
+        if (error.message !== 'Network Error' && error.message !== 'Request failed with status code 401') {
+          console.error('Failed to fetch user:', {
+            message: error.message,
+            status: error?.response?.status,
+          });
+        }
+      }
+      
+      // Always clean up tokens on error
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('accessToken');
+        sessionStorage.removeItem('accessToken');
+      }
     } finally {
       setLoading(false);
     }
