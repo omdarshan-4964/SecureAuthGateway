@@ -77,7 +77,7 @@ export default function TransactionsPage() {
       setLoading(true);
       setError(null);
 
-      const response = await axiosInstance.get('/v1/transaction/history');
+      const response = await axiosInstance.get('/transaction/history');
 
       const data = response.data.data;
       setTransactions(data.transactions);

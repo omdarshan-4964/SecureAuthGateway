@@ -2,7 +2,8 @@
  * API CLIENT - Type-Safe API Calls
  * Centralized API methods matching backend endpoints
  * 
- * Backend Base URL: http://localhost:5000/api/v1
+ * Backend Base URL: Configured via NEXT_PUBLIC_API_URL (defaults to http://localhost:5000/api)
+ * Note: All routes should NOT include /v1 prefix as it's already in baseURL
  * All responses follow format: { success, message, data, timestamp }
  */
 

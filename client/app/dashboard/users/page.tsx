@@ -22,7 +22,7 @@ import {
 import { useAuth } from '@/lib/auth-context';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import axios from 'axios';
+import axiosInstance from '@/lib/axios';
 import { toast } from 'sonner';
 
 interface User {
@@ -76,13 +76,7 @@ export default function UsersPage() {
     try {
       setLoading(true);
       setError(null);
-      const accessToken = localStorage.getItem('accessToken');
-      const response = await axios.get(
-        'http://localhost:5000/api/v1/users',
-        {
-          headers: { Authorization: `Bearer ${accessToken}` },
-        }
-      );
+      const response = await axiosInstance.get('/users');
       setUsers(response.data.data.users);
     } catch (err) {
       const error = err as { response?: { data?: { message?: string } } };
@@ -104,13 +98,9 @@ export default function UsersPage() {
     setUsers(users.map(u => u.id === userId ? { ...u, isActive: newStatus } : u));
 
     try {
-      const accessToken = localStorage.getItem('accessToken');
-      await axios.patch(
-        `http://localhost:5000/api/v1/users/${userId}/status`,
-        { isActive: newStatus },
-        {
-          headers: { Authorization: `Bearer ${accessToken}` },
-        }
+      await axiosInstance.patch(
+        `/users/${userId}/status`,
+        { isActive: newStatus }
       );
 
       toast.success(
