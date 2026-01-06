@@ -7,18 +7,20 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { toast } from 'sonner';
-import { Loader2, Shield, ArrowRight, Mail, Lock, Chrome } from 'lucide-react';import { AxiosError } from 'axios';
+import { Loader2, Shield, ArrowRight, Mail, Lock, Chrome } from 'lucide-react';
+import { AxiosError } from 'axios';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { useLogin } from '@/lib/auth-hooks';
+import { fadeInUp, crossFade, scaleOnHover } from '@/lib/animations';
 
 // Zod Schema for Login Validation
 const loginSchema = z.object({
@@ -190,12 +192,17 @@ const token = jwt.sign({
 
       {/* RIGHT SIDE - Login Form */}
       <motion.div
-        initial={{ x: 100, opacity: 0 }}
-        animate={{ x: 0, opacity: 1 }}
-        transition={{ duration: 0.6, ease: 'easeOut' }}
+        variants={fadeInUp}
+        initial="hidden"
+        animate="visible"
         className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-slate-950"
       >
-        <div className="w-full max-w-md space-y-8">
+        <motion.div
+          variants={crossFade}
+          initial="hidden"
+          animate="visible"
+          className="w-full max-w-md space-y-8"
+        >
           {/* Mobile Logo */}
           <div className="lg:hidden flex items-center gap-3 mb-8">
             <div className="w-10 h-10 rounded-lg bg-primary/20 border border-primary/30 flex items-center justify-center">
@@ -261,7 +268,8 @@ const token = jwt.sign({
               )}
             </div>
 
-            {/* Submit Button */}
+          {/* Submit Button */}
+          <motion.div whileHover={scaleOnHover} whileTap={{ scale: 0.98 }}>
             <Button
               type="submit"
               disabled={isSubmitting || loginMutation.isPending}
@@ -279,6 +287,7 @@ const token = jwt.sign({
                 </>
               )}
             </Button>
+          </motion.div>
           </form>
 
           {/* Divider */}
@@ -310,7 +319,7 @@ const token = jwt.sign({
               Create one now
             </Link>
           </p>
-        </div>
+        </motion.div>
       </motion.div>
     </div>
   );

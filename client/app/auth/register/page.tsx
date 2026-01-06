@@ -7,7 +7,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -22,6 +22,7 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { useRegister } from '@/lib/auth-hooks';
+import { fadeInUp, crossFade, scaleOnHover } from '@/lib/animations';
 
 // Zod Schema for Registration
 const registerSchema = z
@@ -216,12 +217,17 @@ export default function RegisterPage() {
 
       {/* RIGHT SIDE - Register Form */}
       <motion.div
-        initial={{ x: 100, opacity: 0 }}
-        animate={{ x: 0, opacity: 1 }}
-        transition={{ duration: 0.6, ease: 'easeOut' }}
+        variants={fadeInUp}
+        initial="hidden"
+        animate="visible"
         className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-slate-950 overflow-y-auto"
       >
-        <div className="w-full max-w-md space-y-8 py-8">
+        <motion.div
+          variants={crossFade}
+          initial="hidden"
+          animate="visible"
+          className="w-full max-w-md space-y-8 py-8"
+        >
           {/* Mobile Logo */}
           <div className="lg:hidden flex items-center gap-3 mb-8">
             <div className="w-10 h-10 rounded-lg bg-primary/20 border border-primary/30 flex items-center justify-center">
@@ -369,11 +375,12 @@ export default function RegisterPage() {
             </div>
 
             {/* Submit Button */}
-            <Button
-              type="submit"
-              disabled={isSubmitting || registerMutation.isPending}
-              className="w-full h-12 btn-glow text-base font-semibold"
-            >
+            <motion.div whileHover={scaleOnHover} whileTap={{ scale: 0.98 }}>
+              <Button
+                type="submit"
+                disabled={isSubmitting || registerMutation.isPending}
+                className="w-full h-12 btn-glow text-base font-semibold"
+              >
               {isSubmitting || registerMutation.isPending ? (
                 <>
                   <Loader2 className="w-5 h-5 mr-2 animate-spin" />
@@ -386,6 +393,7 @@ export default function RegisterPage() {
                 </>
               )}
             </Button>
+            </motion.div>
           </form>
 
           {/* Divider */}
@@ -417,7 +425,7 @@ export default function RegisterPage() {
               Sign in instead
             </Link>
           </p>
-        </div>
+        </motion.div>
       </motion.div>
     </div>
   );
