@@ -18,7 +18,7 @@ import {
   DollarSign,
   Activity,
 } from 'lucide-react';
-import axios from 'axios';
+import axiosInstance from '@/lib/axios';
 import { useAuth } from '@/lib/auth-context';
 import { staggerContainer, fadeInUp, scaleOnHover } from '@/lib/animations';
 
@@ -98,31 +98,13 @@ export default function DashboardPage() {
     setTransactionStatus('idle');
 
     try {
-      const accessToken = localStorage.getItem('accessToken');
-      
-      if (!accessToken) {
-        setTransactionStatus('error');
-        setErrorMessage('Invalid access token. Please login again.');
-        setTimeout(() => setTransactionStatus('idle'), 3000);
-        return;
-      }
-      
-      await axios.post(
-        'http://localhost:5000/api/v1/transaction/simulate',
-        {
-          amount: parseFloat(amount),
-          currency: 'USD',
-          customerEmail: user?.email || 'customer@example.com',
-          merchantId: 'merchant_demo_001',
-          description: 'Dashboard Payment Simulation',
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            'Content-Type': 'application/json',
-          },
-        }
-      );
+      await axiosInstance.post('/v1/transaction/simulate', {
+        amount: parseFloat(amount),
+        currency: 'USD',
+        customerEmail: user?.email || 'customer@example.com',
+        merchantId: 'merchant_demo_001',
+        description: 'Dashboard Payment Simulation',
+      });
 
       // Success - User is MERCHANT or ADMIN
       setTransactionStatus('success');

@@ -19,7 +19,7 @@ import {
   Activity,
   Clock,
 } from 'lucide-react';
-import axios from 'axios';
+import axiosInstance from '@/lib/axios';
 import { useAuth } from '@/lib/auth-context';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -77,15 +77,7 @@ export default function TransactionsPage() {
       setLoading(true);
       setError(null);
 
-      const accessToken = localStorage.getItem('accessToken');
-      const response = await axios.get(
-        'http://localhost:5000/api/v1/transaction/history',
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
-      );
+      const response = await axiosInstance.get('/v1/transaction/history');
 
       const data = response.data.data;
       setTransactions(data.transactions);
