@@ -1,5 +1,8 @@
 {
   "dependencies": {
-    "@radix-ui/react-progress": "^1.1.8"
+    "@radix-ui/react-progress": "^1.1.8",
+    "clsx": "^2.1.1",
+    "framer-motion": "^12.24.0",
+    "tailwind-merge": "^3.4.0"
   }
 }
