@@ -98,7 +98,7 @@ export default function DashboardPage() {
     setTransactionStatus('idle');
 
     try {
-      await axiosInstance.post('/v1/transaction/simulate', {
+      await axiosInstance.post('/transaction/simulate', {
         amount: parseFloat(amount),
         currency: 'USD',
         customerEmail: user?.email || 'customer@example.com',
