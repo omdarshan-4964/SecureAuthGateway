@@ -31,7 +31,7 @@ const registerSchema = z
       .string()
       .min(3, 'Username must be at least 3 characters')
       .max(20, 'Username must be less than 20 characters')
-      .regex(/^[a-zA-Z0-9_]+$/, 'Username can only contain letters, numbers, and underscores'),
+      .regex(/^[a-zA-Z][a-zA-Z0-9_]{2,}$/, 'Username must start with a letter and contain only letters, numbers, and underscores'),
     email: z
       .string()
       .min(1, 'Email is required')
@@ -42,7 +42,8 @@ const registerSchema = z
       .max(100, 'Password is too long')
       .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
       .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
-      .regex(/[0-9]/, 'Password must contain at least one number'),
+      .regex(/[0-9]/, 'Password must contain at least one number')
+      .regex(/[^a-zA-Z0-9]/, 'Password must contain at least one special character'),
     confirmPassword: z.string().min(1, 'Please confirm your password'),
     role: z.enum(['USER', 'MERCHANT', 'ADMIN']),
   })
@@ -83,9 +84,11 @@ export default function RegisterPage() {
     register,
     handleSubmit,
     setValue,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
+    mode: 'onChange',
     defaultValues: {
       username: 'testuser',
       email: 'test@example.com',
@@ -94,6 +97,20 @@ export default function RegisterPage() {
       role: 'USER',
     },
   });
+
+  const passwordValue = watch('password') || '';
+
+  const passwordChecks = {
+    length: passwordValue.length >= 8,
+    uppercase: /[A-Z]/.test(passwordValue),
+    number: /[0-9]/.test(passwordValue),
+    special: /[^a-zA-Z0-9]/.test(passwordValue),
+  };
+
+  const strengthScore = Object.values(passwordChecks).filter(Boolean).length;
+  const strengthLabel = strengthScore <= 1 ? 'Weak' : strengthScore <= 3 ? 'Medium' : 'Strong';
+  const strengthColor = strengthScore <= 1 ? 'bg-red-500' : strengthScore <= 3 ? 'bg-yellow-500' : 'bg-green-500';
+  const strengthTextColor = strengthScore <= 1 ? 'text-red-500' : strengthScore <= 3 ? 'text-yellow-500' : 'text-green-500';
 
   const onSubmit = async (data: RegisterFormValues) => {
     try {
@@ -310,6 +327,41 @@ export default function RegisterPage() {
               </div>
               {errors.password && (
                 <p className="text-sm text-red-500">{errors.password.message}</p>
+              )}
+              {/* Password Strength Indicator */}
+              {passwordValue.length > 0 && (
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex gap-1 flex-1">
+                      {[1, 2, 3, 4].map((i) => (
+                        <div
+                          key={i}
+                          className={`h-1 flex-1 rounded-full transition-all duration-300 ${
+                            i <= strengthScore ? strengthColor : 'bg-slate-800'
+                          }`}
+                        />
+                      ))}
+                    </div>
+                    <span className={`text-xs font-medium ml-3 ${strengthTextColor}`}>
+                      {strengthLabel}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-1">
+                    {[
+                      { met: passwordChecks.length, label: '8+ characters' },
+                      { met: passwordChecks.uppercase, label: 'Uppercase letter' },
+                      { met: passwordChecks.number, label: 'Number' },
+                      { met: passwordChecks.special, label: 'Special character' },
+                    ].map(({ met, label }) => (
+                      <div key={label} className="flex items-center gap-1.5">
+                        <div className={`w-1.5 h-1.5 rounded-full ${met ? 'bg-green-500' : 'bg-slate-600'}`} />
+                        <span className={`text-xs ${met ? 'text-green-500' : 'text-muted-foreground'}`}>
+                          {label}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               )}
             </div>
 
